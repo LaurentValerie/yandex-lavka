@@ -1,5 +1,6 @@
 package ru.yandex.yandexlavka.business.DTO;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,6 +21,8 @@ public class CourierMetaInfo {
     private List<Integer> regions;
     @JsonProperty("working_hours")
     private List<String> workingHours;
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private int rating;
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private int earnings;
 }

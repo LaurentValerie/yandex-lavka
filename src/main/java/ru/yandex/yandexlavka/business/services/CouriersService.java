@@ -13,6 +13,8 @@ import ru.yandex.yandexlavka.persistance.OrdersRepository;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -62,8 +64,12 @@ public class CouriersService {
         CourierDTO courierDTO = Mappers.convertCourierToDTO(courier);
         CourierType courierType = courier.getCourierType();
 
-        Instant start = Instant.parse(startDate);
-        Instant end = Instant.parse(endDate);
+        LocalDate startD = LocalDate.parse(startDate);
+        LocalDate endD = LocalDate.parse(endDate);
+        Instant start = startD.atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Instant end = endD.atStartOfDay(ZoneId.systemDefault()).toInstant();
+//        Instant start = Instant.parse(startDate);
+//        Instant end = Instant.parse(endDate);
 
         List<Long> completeOrdersIds = completeOrdersRepository.findOrderIdsByCompleteTimeAndCourierId(id, start, end);
         int completeOrders = completeOrdersIds.size();
@@ -73,7 +79,7 @@ public class CouriersService {
             int rating = getCourierRating(courierType, completeOrders, start, end);
             courierMetaInfo = new CourierMetaInfo(id, courierType, courier.getRegions(), courierDTO.getWorkingHours(), rating, earnings);
         } else {
-            courierMetaInfo = new CourierMetaInfo(id, courierType, null, null, 0, 0);
+            courierMetaInfo = new CourierMetaInfo(id, courierType, courier.getRegions(), courierDTO.getWorkingHours(), 0, 0);
         }
 
         return Optional.of(courierMetaInfo);

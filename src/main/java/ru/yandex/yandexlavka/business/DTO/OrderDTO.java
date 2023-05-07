@@ -1,5 +1,6 @@
 package ru.yandex.yandexlavka.business.DTO;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -29,5 +30,6 @@ public class OrderDTO {
     @NotNull
     private int cost;
     @JsonProperty("completed_time")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Instant completedTime;
 }
