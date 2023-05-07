@@ -20,18 +20,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.modelmapper:modelmapper:3.1.0'
     implementation 'org.projectlombok:lombok:1.18.26'
+    implementation 'com.bucket4j:bucket4j-core:8.3.0'
     runtimeOnly 'org.postgresql:postgresql'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-}
-
-jar {
-    manifest {
-        attributes 'Main-Class': 'src/main/java/ru/yandex/yandexlavka/YandexLavkaApplication.java'
-    }
-//    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-}
-
-
-tasks.named('test') {
-    useJUnitPlatform()
 }
