@@ -2,6 +2,8 @@ package ru.yandex.yandexlavka.business.services;
 
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.yandex.yandexlavka.business.DTO.CourierDTO;
 import ru.yandex.yandexlavka.business.DTO.CourierMetaInfo;
@@ -57,10 +59,23 @@ public class CouriersService {
         return couriersRepository.findById(id).map(Mappers::convertCourierToDTO);
     }
 
-    public Optional<CourierMetaInfo> getCourierMetaInfo(long id, String startDate, String endDate) {
-        CourierMetaInfo courierMetaInfo;
+    public List<CourierDTO> getCouriers(int limit, int offset) {
+        Pageable pageable = PageRequest.of(offset, limit);
+        var couriers = couriersRepository.findAll(pageable);
+        List<CourierDTO> couriersDTO = new ArrayList<>(couriers.getSize());
+        for (Courier courier : couriers) {
+            couriersDTO.add(Mappers.convertCourierToDTO(courier));
+        }
+        return couriersDTO;
+    }
 
-        Courier courier = couriersRepository.findById(id).get();
+    public Optional<CourierMetaInfo> getCourierMetaInfo(long id, String startDate, String endDate) {
+        Optional<Courier> courierOptional = couriersRepository.findById(id);
+        if (courierOptional.isEmpty()) {
+            return Optional.empty();
+        }
+        Courier courier = courierOptional.get();
+        CourierMetaInfo courierMetaInfo;
         CourierDTO courierDTO = Mappers.convertCourierToDTO(courier);
         CourierType courierType = courier.getCourierType();
 

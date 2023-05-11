@@ -20,11 +20,11 @@ import java.util.Optional;
 public class CouriersController {
     private final CouriersService couriersService;
     private final BucketFactory bucketFactory;
-    Bucket postCourierBucket;
-    Bucket postCouriersBucket;
-    Bucket getCourierByIdBucket;
-    Bucket getCouriersBucket;
-    Bucket getCourierMetaInfoBucket;
+    private final Bucket postCourierBucket;
+    private final Bucket postCouriersBucket;
+    private final Bucket getCourierByIdBucket;
+    private final Bucket getCouriersBucket;
+    private final Bucket getCourierMetaInfoBucket;
 
 
     @Autowired
@@ -69,7 +69,7 @@ public class CouriersController {
     public ResponseEntity<List<CourierDTO>> getCouriers(@RequestParam(defaultValue = "1") int limit,
                                                         @RequestParam(defaultValue = "0") int offset) {
         if (getCouriersBucket.tryConsume(1)) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.ok(couriersService.getCouriers(limit, offset));
         } else {
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
         }

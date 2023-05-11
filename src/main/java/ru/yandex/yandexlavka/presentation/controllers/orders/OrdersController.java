@@ -13,6 +13,7 @@ import ru.yandex.yandexlavka.presentation.BucketFactory;
 import ru.yandex.yandexlavka.presentation.models.CompleteOrderRequestDto;
 import ru.yandex.yandexlavka.presentation.models.CreateOrderRequest;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,10 +22,11 @@ public class OrdersController {
     private final OrdersService ordersService;
     private final CompleteOrdersService completeOrdersService;
     private final BucketFactory bucketFactory;
-    Bucket postOrderBucket;
-    Bucket postOrdersBucket;
-    Bucket getOrderByIdBucket;
-    Bucket completeOrdersBucket;
+    private final Bucket postOrderBucket;
+    private final Bucket postOrdersBucket;
+    private final Bucket getOrderByIdBucket;
+    private final Bucket getOrdersBucket;
+    private final Bucket completeOrdersBucket;
 
     @Autowired
     public OrdersController(CompleteOrdersService completeOrdersService, OrdersService ordersService, BucketFactory bucketFactory) {
@@ -34,6 +36,7 @@ public class OrdersController {
         this.postOrderBucket = bucketFactory.createBucket(10, 1);
         this.postOrdersBucket = bucketFactory.createBucket(10, 1);
         this.getOrderByIdBucket = bucketFactory.createBucket(10, 1);
+        this.getOrdersBucket = bucketFactory.createBucket(10, 1);
         this.completeOrdersBucket = bucketFactory.createBucket(10, 1);
     }
 
@@ -67,14 +70,29 @@ public class OrdersController {
     @GetMapping("/orders/{order_id}")
     public ResponseEntity<OrderDTO> getOrderById(@PathVariable Long order_id) {
         if (getOrderByIdBucket.tryConsume(1)) {
-            Optional<OrderDTO> order = ordersService.getCourierById(order_id);
+            Optional<OrderDTO> order = ordersService.getOrderById(order_id);
             if (order.isPresent()) {
-                return ResponseEntity.of(ordersService.getCourierById(order_id));
+                return ResponseEntity.of(ordersService.getOrderById(order_id));
             } else {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
         } else {
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
         }
+    }
+
+    @GetMapping("/orders")
+    public ResponseEntity<List<OrderDTO>> getOrders(@RequestParam(defaultValue = "1") int limit,
+                                                    @RequestParam(defaultValue = "0") int offset) {
+        if (getOrdersBucket.tryConsume(1)) {
+            return ResponseEntity.ok(ordersService.getOrders(limit, offset));
+        } else {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
+        }
+    }
+
+    @PostMapping("/orders/assign")
+    public ResponseEntity<?> assignOrders(@RequestParam(defaultValue = "now") LocalDate localDate) {
+        return ResponseEntity.badRequest().build();
     }
 }
