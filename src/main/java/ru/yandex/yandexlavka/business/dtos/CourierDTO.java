@@ -1,4 +1,4 @@
-package ru.yandex.yandexlavka.business.DTO;
+package ru.yandex.yandexlavka.business.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
