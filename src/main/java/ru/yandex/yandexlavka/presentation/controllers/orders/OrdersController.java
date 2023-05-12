@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.yandexlavka.business.DTO.OrderDTO;
+import ru.yandex.yandexlavka.business.dtos.OrderDTO;
 import ru.yandex.yandexlavka.business.services.CompleteOrdersService;
 import ru.yandex.yandexlavka.business.services.OrdersService;
 import ru.yandex.yandexlavka.presentation.BucketFactory;

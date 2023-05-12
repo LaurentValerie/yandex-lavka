@@ -5,12 +5,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ru.yandex.yandexlavka.business.DTO.OrderDTO;
+import ru.yandex.yandexlavka.business.dtos.OrderDTO;
 import ru.yandex.yandexlavka.business.entities.Order;
+import ru.yandex.yandexlavka.business.services.mappers.DtoToOrderMapper;
+import ru.yandex.yandexlavka.business.services.mappers.OrderToDtoMapper;
 import ru.yandex.yandexlavka.persistance.CouriersRepository;
 import ru.yandex.yandexlavka.persistance.OrdersRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,44 +19,57 @@ import java.util.Optional;
 public class OrdersService {
     private final CouriersRepository couriersRepository;
     private final OrdersRepository ordersRepository;
+    private final OrderToDtoMapper orderToDtoMapper;
+    private final DtoToOrderMapper dtoToOrderMapper;
 
     @Autowired
-    public OrdersService(CouriersRepository couriersRepository, OrdersRepository ordersRepository) {
+    public OrdersService(CouriersRepository couriersRepository, OrdersRepository ordersRepository,
+                         OrderToDtoMapper orderToDtoMapper, DtoToOrderMapper dtoToOrderMapper) {
         this.couriersRepository = couriersRepository;
         this.ordersRepository = ordersRepository;
+        this.orderToDtoMapper = orderToDtoMapper;
+        this.dtoToOrderMapper = dtoToOrderMapper;
     }
 
     public Optional<OrderDTO> saveOrUpdate(OrderDTO orderDTO) {
-        Order order = Mappers.convertDTOtoOrder(orderDTO);
-        return Optional.of(Mappers.convertOrderToDTO(ordersRepository.save(order)));
+        Order order = dtoToOrderMapper.toOrder(orderDTO);
+        var saved = ordersRepository.save(order);
+        return Optional.ofNullable(orderToDtoMapper.toDto(saved));
+//        Order order = Mappers.convertDTOtoOrder(orderDTO);
+//        return Optional.of(Mappers.convertOrderToDTO(ordersRepository.save(order)));
     }
 
     @Transactional
-    public List<OrderDTO> saveOrUpdateAll(List<OrderDTO> ordersDTO) {
-        List<Order> orders = new ArrayList<>();
-        for (OrderDTO orderDTO : ordersDTO) {
-            orders.add(Mappers.convertDTOtoOrder(orderDTO));
-        }
+    public List<OrderDTO> saveOrUpdateAll(List<OrderDTO> orderDTOs) {
+        List<Order> orders = dtoToOrderMapper.toOrders(orderDTOs);
+//        List<Order> orders = new ArrayList<>();
+//        for (OrderDTO orderDTO : ordersDTO) {
+//            orders.add(Mappers.convertDTOtoOrder(orderDTO));
+//        }
         orders = (List<Order>) ordersRepository.saveAll(orders);
-        List<OrderDTO> response = new ArrayList<>();
-        for (Order order : orders) {
-            response.add(Mappers.convertOrderToDTO(order));
-        }
+        List<OrderDTO> response = orderToDtoMapper.toDtos(orders);
+//        List<OrderDTO> response = new ArrayList<>();
+//        for (Order order : orders) {
+//            response.add(Mappers.convertOrderToDTO(order));
+//        }
         return response;
     }
 
     public Optional<OrderDTO> getOrderById(Long id) {
-        return ordersRepository.findById(id).map(Mappers::convertOrderToDTO);
+        return ordersRepository.findById(id).map(orderToDtoMapper::toDto);
+//        return ordersRepository.findById(id).map(Mappers::convertOrderToDTO);
     }
 
     public List<OrderDTO> getOrders(int limit, int offset) {
         Pageable pageable = PageRequest.of(offset, limit);
-        var orders = ordersRepository.findAll(pageable);
-        List<OrderDTO> ordersDTO = new ArrayList<>(orders.getSize());
-        for (Order order: orders) {
-            ordersDTO.add(Mappers.convertOrderToDTO(order));
-        }
-        return ordersDTO;
+        List<Order> orders = ordersRepository.findAll(pageable).getContent();
+        List<OrderDTO> ordersDTOs = orderToDtoMapper.toDtos(orders);
+//        var orders = ordersRepository.findAll(pageable);
+//        List<OrderDTO> ordersDTO = new ArrayList<>(orders.getSize());
+//        for (Order order: orders) {
+//            ordersDTO.add(Mappers.convertOrderToDTO(order));
+//        }
+        return ordersDTOs;
     }
 
 //    public List<?> assignOrders(LocalDate localDate) {

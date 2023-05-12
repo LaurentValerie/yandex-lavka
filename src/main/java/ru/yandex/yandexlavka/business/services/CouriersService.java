@@ -5,10 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ru.yandex.yandexlavka.business.DTO.CourierDTO;
-import ru.yandex.yandexlavka.business.DTO.CourierMetaInfo;
-import ru.yandex.yandexlavka.business.DTO.CourierType;
+import ru.yandex.yandexlavka.business.dtos.CourierDTO;
+import ru.yandex.yandexlavka.business.dtos.CourierMetaInfo;
+import ru.yandex.yandexlavka.business.dtos.CourierType;
 import ru.yandex.yandexlavka.business.entities.Courier;
+import ru.yandex.yandexlavka.business.services.mappers.CourierToDtoMapper;
+import ru.yandex.yandexlavka.business.services.mappers.DtoToCourierMapper;
 import ru.yandex.yandexlavka.persistance.CompleteOrdersRepository;
 import ru.yandex.yandexlavka.persistance.CouriersRepository;
 import ru.yandex.yandexlavka.persistance.OrdersRepository;
@@ -17,7 +19,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,47 +27,58 @@ public class CouriersService {
     private final CompleteOrdersRepository completeOrdersRepository;
     private final CouriersRepository couriersRepository;
     private final OrdersRepository ordersRepository;
+    private final CourierToDtoMapper courierToDtoMapper;
+    private final DtoToCourierMapper dtoToCourierMapper;
 
     @Autowired
     CouriersService(CompleteOrdersRepository completeOrdersRepository,
-                          CouriersRepository couriersRepository,
-                          OrdersRepository ordersRepository) {
+                    CouriersRepository couriersRepository,
+                    OrdersRepository ordersRepository,
+                    CourierToDtoMapper courierToDtoMapper, DtoToCourierMapper dtoToCourierMapper) {
         this.completeOrdersRepository = completeOrdersRepository;
         this.couriersRepository = couriersRepository;
         this.ordersRepository = ordersRepository;
+        this.courierToDtoMapper = courierToDtoMapper;
+        this.dtoToCourierMapper = dtoToCourierMapper;
     }
 
     public Optional<CourierDTO> saveOrUpdate(CourierDTO courierDTO) {
-        Courier courier = Mappers.convertDTOtoCourier(courierDTO);
-        return Optional.of(Mappers.convertCourierToDTO(couriersRepository.save(courier)));
+        Courier courier = dtoToCourierMapper.DtoToCourier(courierDTO);
+//        Courier courier = Mappers.convertDTOtoCourier(courierDTO);
+        var saved = couriersRepository.save(courier);
+        return Optional.of(courierToDtoMapper.toDto(saved));
     }
 
     @Transactional
     public List<CourierDTO> saveOrUpdateAll(List<CourierDTO> couriersDTO) {
-        List<Courier> couriers = new ArrayList<>();
-        for (CourierDTO courierDTO : couriersDTO) {
-            couriers.add(Mappers.convertDTOtoCourier(courierDTO));
-        }
+        List<Courier> couriers = dtoToCourierMapper.DtosToCouriers(couriersDTO);
+//        List<Courier> couriers = new ArrayList<>();
+//        for (CourierDTO courierDTO : couriersDTO) {
+//            couriers.add(Mappers.convertDTOtoCourier(courierDTO));
+//        }
         couriers = (List<Courier>) couriersRepository.saveAll(couriers);
-        List<CourierDTO> response = new ArrayList<>();
-        for (Courier courier : couriers) {
-            response.add(Mappers.convertCourierToDTO(courier));
-        }
+        List<CourierDTO> response = courierToDtoMapper.toDtos(couriers);
+//        List<CourierDTO> response = new ArrayList<>();
+//        for (Courier courier : couriers) {
+//            response.add(Mappers.convertCourierToDTO(courier));
+//        }
         return response;
     }
 
     public Optional<CourierDTO> getCourierById(Long id) {
-        return couriersRepository.findById(id).map(Mappers::convertCourierToDTO);
+        return couriersRepository.findById(id).map(courierToDtoMapper::toDto);
+//        return couriersRepository.findById(id).map(Mappers::convertCourierToDTO);
     }
 
     public List<CourierDTO> getCouriers(int limit, int offset) {
         Pageable pageable = PageRequest.of(offset, limit);
-        var couriers = couriersRepository.findAll(pageable);
-        List<CourierDTO> couriersDTO = new ArrayList<>(couriers.getSize());
-        for (Courier courier : couriers) {
-            couriersDTO.add(Mappers.convertCourierToDTO(courier));
-        }
-        return couriersDTO;
+        List<Courier> couriers = couriersRepository.findAll(pageable).getContent();
+        List<CourierDTO> couriersDTOs = courierToDtoMapper.toDtos(couriers);
+//        List<CourierDTO> couriersDTOs = new ArrayList<>(couriers.getSize());
+//        for (Courier courier : couriers) {
+//            couriersDTO.add(Mappers.convertCourierToDTO(courier));
+//        }
+        return couriersDTOs;
     }
 
     public Optional<CourierMetaInfo> getCourierMetaInfo(long id, String startDate, String endDate) {
@@ -76,7 +88,8 @@ public class CouriersService {
         }
         Courier courier = courierOptional.get();
         CourierMetaInfo courierMetaInfo;
-        CourierDTO courierDTO = Mappers.convertCourierToDTO(courier);
+        CourierDTO courierDTO = courierToDtoMapper.toDto(courier);
+//        CourierDTO courierDTO = Mappers.convertCourierToDTO(courier);
         CourierType courierType = courier.getCourierType();
 
         LocalDate startD = LocalDate.parse(startDate);

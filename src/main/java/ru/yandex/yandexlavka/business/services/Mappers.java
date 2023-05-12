@@ -1,8 +1,8 @@
 package ru.yandex.yandexlavka.business.services;
 
 import org.modelmapper.ModelMapper;
-import ru.yandex.yandexlavka.business.DTO.CourierDTO;
-import ru.yandex.yandexlavka.business.DTO.OrderDTO;
+import ru.yandex.yandexlavka.business.dtos.CourierDTO;
+import ru.yandex.yandexlavka.business.dtos.OrderDTO;
 import ru.yandex.yandexlavka.business.entities.Courier;
 import ru.yandex.yandexlavka.business.entities.Order;
 
@@ -10,6 +10,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class Mappers {
     private static final ModelMapper mapper = new ModelMapper();
     private static final StringBuilder sb = new StringBuilder();

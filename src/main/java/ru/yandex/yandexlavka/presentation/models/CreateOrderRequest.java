@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.yandex.yandexlavka.business.DTO.OrderDTO;
+import ru.yandex.yandexlavka.business.dtos.OrderDTO;
 
 import java.util.List;
 
