@@ -35,28 +35,17 @@ public class OrdersService {
         Order order = dtoToOrderMapper.toOrder(orderDTO);
         var saved = ordersRepository.save(order);
         return Optional.ofNullable(orderToDtoMapper.toDto(saved));
-//        Order order = Mappers.convertDTOtoOrder(orderDTO);
-//        return Optional.of(Mappers.convertOrderToDTO(ordersRepository.save(order)));
     }
 
     @Transactional
     public List<OrderDTO> saveOrUpdateAll(List<OrderDTO> orderDTOs) {
         List<Order> orders = dtoToOrderMapper.toOrders(orderDTOs);
-//        List<Order> orders = new ArrayList<>();
-//        for (OrderDTO orderDTO : ordersDTO) {
-//            orders.add(Mappers.convertDTOtoOrder(orderDTO));
-//        }
         orders = (List<Order>) ordersRepository.saveAll(orders);
-//        List<OrderDTO> response = new ArrayList<>();
-//        for (Order order : orders) {
-//            response.add(Mappers.convertOrderToDTO(order));
-//        }
         return orderToDtoMapper.toDtos(orders);
     }
 
     public Optional<OrderDTO> getOrderById(Long id) {
         return ordersRepository.findById(id).map(orderToDtoMapper::toDto);
-//        return ordersRepository.findById(id).map(Mappers::convertOrderToDTO);
     }
 
     public List<OrderDTO> getOrders(int limit, int offset) {

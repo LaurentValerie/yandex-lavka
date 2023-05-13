@@ -32,22 +32,19 @@ public class CompleteOrdersService {
     @Transactional
     public List<OrderDTO> completeOrders(List<CompleteOrder> completeOrders) {
         completeOrdersRepository.saveAll(completeOrders);
+
         List<Long> orderIds = new ArrayList<>();
         for (CompleteOrder completeOrder : completeOrders) {
             orderIds.add(completeOrder.getOrderID());
         }
+
         List<Order> orders = (List<Order>) ordersRepository.findAllById(orderIds);
+
         for (int i = 0; i < completeOrders.size(); i++) {
             orders.get(i).setCompletedTime(completeOrders.get(i).getCompleteTime());
-//            Order tmp = orders.get(i);
-//            tmp.setCompletedTime(completeOrders.get(i).getCompleteTime());
-//            orders.set(i, tmp);
         }
         ordersRepository.saveAll(orders);
-        //        List<OrderDTO> ordersDTO = new ArrayList<>();
-//        for (Order order : orders) {
-//            ordersDTO.add(Mappers.convertOrderToDTO(order));
-//        }
+
         return orderToDtoMapper.toDtos(orders);
     }
 }

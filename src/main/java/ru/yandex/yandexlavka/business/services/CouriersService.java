@@ -44,29 +44,19 @@ public class CouriersService {
 
     public Optional<CourierDTO> saveOrUpdate(CourierDTO courierDTO) {
         Courier courier = dtoToCourierMapper.DtoToCourier(courierDTO);
-//        Courier courier = Mappers.convertDTOtoCourier(courierDTO);
-        var saved = couriersRepository.save(courier);
+        Courier saved = couriersRepository.save(courier);
         return Optional.of(courierToDtoMapper.toDto(saved));
     }
 
     @Transactional
     public List<CourierDTO> saveOrUpdateAll(List<CourierDTO> couriersDTO) {
         List<Courier> couriers = dtoToCourierMapper.DtosToCouriers(couriersDTO);
-//        List<Courier> couriers = new ArrayList<>();
-//        for (CourierDTO courierDTO : couriersDTO) {
-//            couriers.add(Mappers.convertDTOtoCourier(courierDTO));
-//        }
         couriers = (List<Courier>) couriersRepository.saveAll(couriers);
-//        List<CourierDTO> response = new ArrayList<>();
-//        for (Courier courier : couriers) {
-//            response.add(Mappers.convertCourierToDTO(courier));
-//        }
         return courierToDtoMapper.toDtos(couriers);
     }
 
     public Optional<CourierDTO> getCourierById(Long id) {
         return couriersRepository.findById(id).map(courierToDtoMapper::toDto);
-//        return couriersRepository.findById(id).map(Mappers::convertCourierToDTO);
     }
 
     public List<CourierDTO> getCouriers(int limit, int offset) {
