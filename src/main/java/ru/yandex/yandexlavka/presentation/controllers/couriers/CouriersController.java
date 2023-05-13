@@ -13,6 +13,7 @@ import ru.yandex.yandexlavka.business.services.CouriersService;
 import ru.yandex.yandexlavka.presentation.BucketFactory;
 import ru.yandex.yandexlavka.presentation.models.CreateCourierRequest;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -75,8 +76,8 @@ public class CouriersController {
 
     @GetMapping(path = "/couriers/meta-info/{courier_id}")
     public ResponseEntity<CourierMetaInfo> getCourierMetaInfo(@PathVariable long courier_id,
-                                                              @RequestParam String startDate,
-                                                              @RequestParam String endDate) {
+                                                              @RequestParam LocalDate startDate,
+                                                              @RequestParam LocalDate endDate) {
         if (getCourierMetaInfoBucket.tryConsume(1)) {
             return ResponseEntity.of(couriersService.getCourierMetaInfo(courier_id, startDate, endDate));
         } else {

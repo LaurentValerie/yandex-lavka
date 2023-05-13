@@ -81,7 +81,7 @@ public class CouriersService {
     }
 
     @Transactional
-    public Optional<CourierMetaInfo> getCourierMetaInfo(long id, String startDate, String endDate) {
+    public Optional<CourierMetaInfo> getCourierMetaInfo(long id, LocalDate startDate, LocalDate endDate) {
         Optional<Courier> courierOptional = couriersRepository.findById(id);
         if (courierOptional.isEmpty()) {
             return Optional.empty();
@@ -89,15 +89,10 @@ public class CouriersService {
         Courier courier = courierOptional.get();
         CourierMetaInfo courierMetaInfo;
         CourierDTO courierDTO = courierToDtoMapper.toDto(courier);
-//        CourierDTO courierDTO = Mappers.convertCourierToDTO(courier);
         CourierType courierType = courier.getCourierType();
 
-        LocalDate startD = LocalDate.parse(startDate);
-        LocalDate endD = LocalDate.parse(endDate);
-        Instant start = startD.atStartOfDay(ZoneId.systemDefault()).toInstant();
-        Instant end = endD.atStartOfDay(ZoneId.systemDefault()).toInstant();
-//        Instant start = Instant.parse(startDate);
-//        Instant end = Instant.parse(endDate);
+        Instant start = startDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Instant end = endDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
 
         List<Long> completeOrdersIds = completeOrdersRepository.findOrderIdsByCompleteTimeAndCourierId(id, start, end);
         int completeOrders = completeOrdersIds.size();
