@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 @JsonFormat(shape = JsonFormat.Shape.STRING)
 public enum CourierType {
-    FOOT, BIKE, AUTO;
+    FOOT, BIKE, AUTO
 }
 //public enum CourierType {
 //    FOOT {

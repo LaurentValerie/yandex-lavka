@@ -3,7 +3,7 @@ package ru.yandex.yandexlavka.business.entities;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import ru.yandex.yandexlavka.business.DTO.CourierType;
+import ru.yandex.yandexlavka.business.dtos.CourierType;
 
 import java.time.LocalTime;
 import java.util.List;

@@ -19,7 +19,6 @@ import java.util.Optional;
 @RestController
 public class CouriersController {
     private final CouriersService couriersService;
-    private final BucketFactory bucketFactory;
     private final Bucket postCourierBucket;
     private final Bucket postCouriersBucket;
     private final Bucket getCourierByIdBucket;
@@ -30,7 +29,6 @@ public class CouriersController {
     @Autowired
     public CouriersController(CouriersService couriersService, BucketFactory bucketFactory) {
         this.couriersService = couriersService;
-        this.bucketFactory = bucketFactory;
         this.postCourierBucket = bucketFactory.createBucket(10, 1);
         this.postCouriersBucket = bucketFactory.createBucket(10, 1);
         this.getCourierByIdBucket = bucketFactory.createBucket(10, 1);

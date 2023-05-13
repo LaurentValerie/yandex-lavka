@@ -21,7 +21,6 @@ import java.util.Optional;
 public class OrdersController {
     private final OrdersService ordersService;
     private final CompleteOrdersService completeOrdersService;
-    private final BucketFactory bucketFactory;
     private final Bucket postOrderBucket;
     private final Bucket postOrdersBucket;
     private final Bucket getOrderByIdBucket;
@@ -32,7 +31,6 @@ public class OrdersController {
     public OrdersController(CompleteOrdersService completeOrdersService, OrdersService ordersService, BucketFactory bucketFactory) {
         this.completeOrdersService = completeOrdersService;
         this.ordersService = ordersService;
-        this.bucketFactory = bucketFactory;
         this.postOrderBucket = bucketFactory.createBucket(10, 1);
         this.postOrdersBucket = bucketFactory.createBucket(10, 1);
         this.getOrderByIdBucket = bucketFactory.createBucket(10, 1);

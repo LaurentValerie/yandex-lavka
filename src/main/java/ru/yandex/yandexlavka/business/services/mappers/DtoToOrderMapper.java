@@ -2,6 +2,7 @@ package ru.yandex.yandexlavka.business.services.mappers;
 
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import ru.yandex.yandexlavka.business.dtos.OrderDTO;
 import ru.yandex.yandexlavka.business.entities.Order;
@@ -12,7 +13,10 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface DtoToOrderMapper {
+    @Mapping(target = "deliveryStart", ignore = true)
+    @Mapping(target = "deliveryEnd", ignore = true)
     Order toOrder(OrderDTO orderDTO);
+
     List<Order> toOrders(List<OrderDTO> orderDTOs);
 
     @AfterMapping

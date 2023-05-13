@@ -2,6 +2,7 @@ package ru.yandex.yandexlavka.business.services.mappers;
 
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import ru.yandex.yandexlavka.business.dtos.CourierDTO;
 import ru.yandex.yandexlavka.business.entities.Courier;
@@ -12,6 +13,9 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface DtoToCourierMapper {
+    @Mapping(target = "completeOrders", ignore = true)
+    @Mapping(target = "startTimeList", ignore = true)
+    @Mapping(target = "endTimeList", ignore = true)
     Courier DtoToCourier(CourierDTO courierDTO);
 
     List<Courier> DtosToCouriers(List<CourierDTO> courierDTOs);

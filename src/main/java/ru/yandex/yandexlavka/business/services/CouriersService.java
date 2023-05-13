@@ -57,12 +57,11 @@ public class CouriersService {
 //            couriers.add(Mappers.convertDTOtoCourier(courierDTO));
 //        }
         couriers = (List<Courier>) couriersRepository.saveAll(couriers);
-        List<CourierDTO> response = courierToDtoMapper.toDtos(couriers);
 //        List<CourierDTO> response = new ArrayList<>();
 //        for (Courier courier : couriers) {
 //            response.add(Mappers.convertCourierToDTO(courier));
 //        }
-        return response;
+        return courierToDtoMapper.toDtos(couriers);
     }
 
     public Optional<CourierDTO> getCourierById(Long id) {
@@ -71,16 +70,17 @@ public class CouriersService {
     }
 
     public List<CourierDTO> getCouriers(int limit, int offset) {
-        Pageable pageable = PageRequest.of(offset, limit);
-        List<Courier> couriers = couriersRepository.findAll(pageable).getContent();
-        List<CourierDTO> couriersDTOs = courierToDtoMapper.toDtos(couriers);
-//        List<CourierDTO> couriersDTOs = new ArrayList<>(couriers.getSize());
-//        for (Courier courier : couriers) {
-//            couriersDTO.add(Mappers.convertCourierToDTO(courier));
-//        }
-        return couriersDTOs;
+
+        // Более классическая версия offset, сдвиг по страницам
+//        Pageable pageable = PageRequest.of(offset, limit);
+//        List<Courier> couriers = couriersRepository.findAll(pageable).getContent();
+
+        // По заданию offset - Количество курьеров, которое нужно пропустить для отображения текущей страницы
+        List<Courier> couriers = couriersRepository.findCouriersWithLimitAndOffset(offset, limit);
+        return courierToDtoMapper.toDtos(couriers);
     }
 
+    @Transactional
     public Optional<CourierMetaInfo> getCourierMetaInfo(long id, String startDate, String endDate) {
         Optional<Courier> courierOptional = couriersRepository.findById(id);
         if (courierOptional.isEmpty()) {

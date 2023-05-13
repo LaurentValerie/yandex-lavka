@@ -17,7 +17,6 @@ import java.util.List;
 @Service
 public class CompleteOrdersService {
     private final CompleteOrdersRepository completeOrdersRepository;
-    private final CouriersRepository couriersRepository;
     private final OrdersRepository ordersRepository;
     private final OrderToDtoMapper orderToDtoMapper;
 
@@ -26,7 +25,6 @@ public class CompleteOrdersService {
                           CouriersRepository couriersRepository,
                           OrdersRepository ordersRepository, OrderToDtoMapper orderToDtoMapper) {
         this.completeOrdersRepository = completeOrdersRepository;
-        this.couriersRepository = couriersRepository;
         this.ordersRepository = ordersRepository;
         this.orderToDtoMapper = orderToDtoMapper;
     }
@@ -46,11 +44,10 @@ public class CompleteOrdersService {
 //            orders.set(i, tmp);
         }
         ordersRepository.saveAll(orders);
-        List<OrderDTO> orderDTOs = orderToDtoMapper.toDtos(orders);
-//        List<OrderDTO> ordersDTO = new ArrayList<>();
+        //        List<OrderDTO> ordersDTO = new ArrayList<>();
 //        for (Order order : orders) {
 //            ordersDTO.add(Mappers.convertOrderToDTO(order));
 //        }
-        return orderDTOs;
+        return orderToDtoMapper.toDtos(orders);
     }
 }

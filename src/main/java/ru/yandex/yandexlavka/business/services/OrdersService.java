@@ -47,12 +47,11 @@ public class OrdersService {
 //            orders.add(Mappers.convertDTOtoOrder(orderDTO));
 //        }
         orders = (List<Order>) ordersRepository.saveAll(orders);
-        List<OrderDTO> response = orderToDtoMapper.toDtos(orders);
 //        List<OrderDTO> response = new ArrayList<>();
 //        for (Order order : orders) {
 //            response.add(Mappers.convertOrderToDTO(order));
 //        }
-        return response;
+        return orderToDtoMapper.toDtos(orders);
     }
 
     public Optional<OrderDTO> getOrderById(Long id) {
@@ -61,15 +60,13 @@ public class OrdersService {
     }
 
     public List<OrderDTO> getOrders(int limit, int offset) {
-        Pageable pageable = PageRequest.of(offset, limit);
-        List<Order> orders = ordersRepository.findAll(pageable).getContent();
-        List<OrderDTO> ordersDTOs = orderToDtoMapper.toDtos(orders);
-//        var orders = ordersRepository.findAll(pageable);
-//        List<OrderDTO> ordersDTO = new ArrayList<>(orders.getSize());
-//        for (Order order: orders) {
-//            ordersDTO.add(Mappers.convertOrderToDTO(order));
-//        }
-        return ordersDTOs;
+        // Более классическая версия offset, сдвиг по страницам
+//        Pageable pageable = PageRequest.of(offset, limit);
+//        List<Order> orders = ordersRepository.findAll(pageable).getContent();
+
+        // По заданию offset - Количество заказов, которое нужно пропустить для отображения текущей страницы
+        List<Order> orders = ordersRepository.findOrdersWithLimitAndOffset(offset, limit);
+        return orderToDtoMapper.toDtos(orders);
     }
 
 //    public List<?> assignOrders(LocalDate localDate) {

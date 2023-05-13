@@ -12,10 +12,10 @@ import java.util.List;
 public interface CourierToDtoMapper {
     StringBuilder sb = new StringBuilder();
 
+    @Mapping(target = "workingHours", ignore = true)
     CourierDTO toDto(Courier courier);
 
     List<CourierDTO> toDtos(List<Courier> couriers);
-
 
     @AfterMapping
     default void setWorkingHoursString(@MappingTarget CourierDTO courierDTO, Courier courier) {
