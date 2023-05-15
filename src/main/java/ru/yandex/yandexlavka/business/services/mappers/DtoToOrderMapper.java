@@ -13,6 +13,8 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface DtoToOrderMapper {
+
+//    @Mapping(target = "assignedCourier", ignore = true)
     @Mapping(target = "deliveryStart", ignore = true)
     @Mapping(target = "deliveryEnd", ignore = true)
     Order toOrder(OrderDTO orderDTO);

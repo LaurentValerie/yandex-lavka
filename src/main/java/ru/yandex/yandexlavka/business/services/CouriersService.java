@@ -42,13 +42,6 @@ public class CouriersService {
         this.dtoToCourierMapper = dtoToCourierMapper;
     }
 
-    @Deprecated
-    public Optional<CourierDTO> saveOrUpdate(CourierDTO courierDTO) {
-        Courier courier = dtoToCourierMapper.DtoToCourier(courierDTO);
-        Courier saved = couriersRepository.save(courier);
-        return Optional.of(courierToDtoMapper.toDto(saved));
-    }
-
     @Transactional
     public List<CourierDTO> saveOrUpdateAll(List<CourierDTO> couriersDTO) {
         List<Courier> couriers = dtoToCourierMapper.DtosToCouriers(couriersDTO);

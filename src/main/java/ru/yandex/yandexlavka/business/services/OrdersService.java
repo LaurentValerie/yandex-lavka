@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.yandexlavka.business.dtos.CourierType;
 import ru.yandex.yandexlavka.business.dtos.OrderDTO;
-import ru.yandex.yandexlavka.business.entities.AssignedOrdersGroup;
+//import ru.yandex.yandexlavka.business.entities.AssignedOrdersGroup;
 import ru.yandex.yandexlavka.business.entities.Courier;
 import ru.yandex.yandexlavka.business.entities.Order;
 import ru.yandex.yandexlavka.business.services.mappers.DtoToOrderMapper;
@@ -32,13 +32,6 @@ public class OrdersService {
         this.dtoToOrderMapper = dtoToOrderMapper;
     }
 
-    @Deprecated
-    public Optional<OrderDTO> saveOrUpdate(OrderDTO orderDTO) {
-        Order order = dtoToOrderMapper.toOrder(orderDTO);
-        var saved = ordersRepository.save(order);
-        return Optional.ofNullable(orderToDtoMapper.toDto(saved));
-    }
-
     @Transactional
     public List<OrderDTO> saveOrUpdateAll(List<OrderDTO> orderDTOs) {
         List<Order> orders = dtoToOrderMapper.toOrders(orderDTOs);
@@ -47,6 +40,9 @@ public class OrdersService {
     }
 
     public Optional<OrderDTO> getOrderById(Long id) {
+//        var order = ordersRepository.findById(id);
+//        if (order.isEmpty()) return Optional.empty();
+//        return Optional.ofNullable(orderToDtoMapper.toDto(order.get()));
         return ordersRepository.findById(id).map(orderToDtoMapper::toDto);
     }
 
@@ -60,7 +56,9 @@ public class OrdersService {
         return orderToDtoMapper.toDtos(orders);
     }
 
-    @Deprecated
+/*
+    // К сожалению немного не успел реализовать, осталось доделать инициализацию временных файлов GroupOrderInfo
+    // и сохранение AssignedGroupOrders
     public void assignOrdersToCouriers() {
         // Используем локальную мапу так как нам не требуется сохранять информацию о составлении групп заказов
         Map<Long, GroupOrdersInfo> assignanceInfoMap = new HashMap<>();
@@ -107,7 +105,6 @@ public class OrdersService {
                                 || isSameRegion(curRegions, order.getRegions())) {
                             LocalTime newEndGroupTime = curEndTime.plusMinutes(courierType.getTimeToVisitFirstPoint());
                             if (newEndGroupTime.isBefore(courierEndTime)) {
-                                // Check if all
                                 curGroup.getOrdersIds().add(order.getId());
                                 endGroupTimes.set(i, newEndGroupTime);
                                 curGroupWeight.set(i, curWeight + order.getWeight());
@@ -117,7 +114,6 @@ public class OrdersService {
                         } else {
                             LocalTime newEndGroupTime = curEndTime.plusMinutes(courierType.getTimeToVisitNextPoint());
                             if (newEndGroupTime.isBefore(courierEndTime)) {
-                                // Check if all
                                 curGroup.getOrdersIds().add(order.getId());
                                 endGroupTimes.set(i, newEndGroupTime);
                                 curGroupWeight.set(i, curWeight + order.getWeight());
@@ -142,8 +138,6 @@ public class OrdersService {
                         }
                     }
                     // Заказ не получилось добавить в существующие группы, пробуем создать новую
-                    // check time for first order and if ok create new group
-                    // don't forget to add this group to groupOrderInfo and to courier
                 }
                 // Если заказ назначен курьеру берем следующий
                 if (isAssigned) break;
@@ -186,5 +180,5 @@ public class OrdersService {
 
     private boolean isSameRegion(List<Integer> prevRegion, int newRegion) {
         return prevRegion.get(prevRegion.size() - 1) == newRegion;
-    }
+    }*/
 }

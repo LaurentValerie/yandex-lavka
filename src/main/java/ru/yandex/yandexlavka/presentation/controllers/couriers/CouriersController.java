@@ -23,7 +23,6 @@ public class CouriersController {
 
     // Для каждого эндпоинта требуется отдельный rate limiter
     // Если их станет значительно больше имеет смысл использовать ConcurrentHashMap
-    private final Bucket postCourierBucket;
     private final Bucket postCouriersBucket;
     private final Bucket getCourierByIdBucket;
     private final Bucket getCouriersBucket;
@@ -33,21 +32,10 @@ public class CouriersController {
     @Autowired
     public CouriersController(CouriersService couriersService, BucketFactory bucketFactory) {
         this.couriersService = couriersService;
-        this.postCourierBucket = bucketFactory.createBucket(10, 1);
         this.postCouriersBucket = bucketFactory.createBucket(10, 1);
         this.getCourierByIdBucket = bucketFactory.createBucket(10, 1);
         this.getCouriersBucket = bucketFactory.createBucket(10, 1);
         this.getCourierMetaInfoBucket = bucketFactory.createBucket(10, 1);
-    }
-
-    @Deprecated
-    @PostMapping(path = "courier", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<CourierDTO> postCourier(@RequestBody CourierDTO courier) {
-        if (postCourierBucket.tryConsume(1)) {
-            return ResponseEntity.of(couriersService.saveOrUpdate(courier));
-        } else {
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
-        }
     }
 
     @PostMapping(path = "couriers", consumes = "application/json", produces = "application/json")
@@ -71,6 +59,7 @@ public class CouriersController {
     @GetMapping(path = "/couriers", produces = "application/json")
     public ResponseEntity<List<CourierDTO>> getCouriers(@RequestParam(defaultValue = "1") int limit,
                                                         @RequestParam(defaultValue = "0") int offset) {
+        if (limit < 0 || offset < 0) return ResponseEntity.badRequest().build();
         if (getCouriersBucket.tryConsume(1)) {
             return ResponseEntity.ok(couriersService.getCouriers(limit, offset));
         } else {

@@ -18,16 +18,16 @@ public class Courier {
     private Long id;
     @Enumerated(EnumType.STRING)
     private CourierType courierType;
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<Integer> regions;
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<LocalTime> startTimeList;
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<LocalTime> endTimeList;
     @OneToMany
     @JoinColumn(name = "courier_id")
     private List<CompleteOrder> completeOrders;
-    @OneToMany
-    @JoinColumn(name = "courier_id")
-    private List<AssignedOrdersGroup> assignedOrderGroups;
+//    @OneToMany
+//    @JoinColumn(name = "courier_id")
+//    private List<AssignedOrdersGroup> assignedOrderGroups;
 }

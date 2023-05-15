@@ -24,7 +24,6 @@ public class OrdersController {
 
     // Для каждого эндпоинта требуется отдельный rate limiter
     // Если их станет значительно больше имеет смысл использовать ConcurrentHashMap
-    private final Bucket postOrderBucket;
     private final Bucket postOrdersBucket;
     private final Bucket getOrderByIdBucket;
     private final Bucket getOrdersBucket;
@@ -35,22 +34,11 @@ public class OrdersController {
     public OrdersController(CompleteOrdersService completeOrdersService, OrdersService ordersService, BucketFactory bucketFactory) {
         this.completeOrdersService = completeOrdersService;
         this.ordersService = ordersService;
-        this.postOrderBucket = bucketFactory.createBucket(10, 1);
         this.postOrdersBucket = bucketFactory.createBucket(10, 1);
         this.getOrderByIdBucket = bucketFactory.createBucket(10, 1);
         this.getOrdersBucket = bucketFactory.createBucket(10, 1);
         this.completeOrdersBucket = bucketFactory.createBucket(10, 1);
         this.assignOrdersBucket = bucketFactory.createBucket(10, 1);
-    }
-
-    @Deprecated
-    @PostMapping(path = "order", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<OrderDTO> postOrder(@RequestBody OrderDTO orderDTO) {
-        if (postOrderBucket.tryConsume(1)) {
-            return ResponseEntity.of(ordersService.saveOrUpdate(orderDTO));
-        } else {
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
-        }
     }
 
     @PostMapping(path = "orders", consumes = "application/json", produces = "application/json")
@@ -65,7 +53,7 @@ public class OrdersController {
     @PostMapping(path = "orders/complete", consumes = "application/json", produces = "application/json")
     public ResponseEntity<List<OrderDTO>> completeOrders(@RequestBody @Valid CompleteOrderRequestDto completeOrderRequestDto) {
         if (completeOrdersBucket.tryConsume(1)) {
-            return ResponseEntity.of(Optional.of(completeOrdersService.completeOrders(completeOrderRequestDto.getCompleteOrders())));
+            return ResponseEntity.of(completeOrdersService.completeOrders(completeOrderRequestDto.getCompleteOrders()));
         } else {
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
         }
@@ -88,6 +76,7 @@ public class OrdersController {
     @GetMapping(path = "/orders", produces = "application/json")
     public ResponseEntity<List<OrderDTO>> getOrders(@RequestParam(defaultValue = "1") int limit,
                                                     @RequestParam(defaultValue = "0") int offset) {
+        if (limit < 0 || offset < 0) return ResponseEntity.badRequest().build();
         if (getOrdersBucket.tryConsume(1)) {
             return ResponseEntity.ok(ordersService.getOrders(limit, offset));
         } else {
@@ -99,7 +88,7 @@ public class OrdersController {
     // В openapi сказано что параметр date deprecated, оставлен для совместимости
     public ResponseEntity<?> assignOrders(@RequestParam(defaultValue = "now") LocalDate date) {
         if (assignOrdersBucket.tryConsume(1)) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().build(); // TODO
         } else {
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
         }

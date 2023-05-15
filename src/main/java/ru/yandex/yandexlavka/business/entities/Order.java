@@ -19,11 +19,11 @@ public class Order {
     private Long id;
     private float weight;
     private int regions;
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<LocalTime> deliveryStart;
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<LocalTime> deliveryEnd;
     private int cost;
     private Instant completedTime;
-    private long assignedCourier;
+//    private long assignedCourier;
 }
