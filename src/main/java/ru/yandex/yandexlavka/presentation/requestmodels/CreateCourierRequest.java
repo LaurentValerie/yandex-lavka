@@ -1,4 +1,4 @@
-package ru.yandex.yandexlavka.presentation.models;
+package ru.yandex.yandexlavka.presentation.requestmodels;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
