@@ -1,4 +1,4 @@
-package ru.yandex.yandexlavka.presentation.models;
+package ru.yandex.yandexlavka.presentation.requestmodels;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;

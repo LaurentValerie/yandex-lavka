@@ -6,6 +6,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ru.yandex.yandexlavka.business.entities.Courier;
+import ru.yandex.yandexlavka.business.entities.Order;
 
 import java.util.List;
 
@@ -13,4 +14,5 @@ import java.util.List;
 public interface CouriersRepository extends PagingAndSortingRepository<Courier, Long>, CrudRepository<Courier, Long>{
     @Query("SELECT c FROM Courier c ORDER BY c.id OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY")
     List<Courier> findCouriersWithLimitAndOffset(@Param("offset") int offset, @Param("limit") int limit);
+    List<Courier> findByRegionsContainingOrderByCourierTypeDescAndOrderByStartTimeList(int region);
 }

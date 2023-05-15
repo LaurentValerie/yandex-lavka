@@ -27,11 +27,7 @@ public class Courier {
     @OneToMany
     @JoinColumn(name = "courier_id")
     private List<CompleteOrder> completeOrders;
-//
-//    @ElementCollection
-//    private List<AssignedOrdersGroup> assignedOrders;
-//    @ElementCollection
-//    private List<Integer> curFreeWeight;
-//    @ElementCollection
-//    private List<Integer> curOrderNumber;
+    @OneToMany
+    @JoinColumn(name = "courier_id")
+    private List<AssignedOrdersGroup> assignedOrderGroups;
 }

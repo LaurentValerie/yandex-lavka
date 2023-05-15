@@ -10,8 +10,8 @@ import ru.yandex.yandexlavka.business.dtos.OrderDTO;
 import ru.yandex.yandexlavka.business.services.CompleteOrdersService;
 import ru.yandex.yandexlavka.business.services.OrdersService;
 import ru.yandex.yandexlavka.presentation.BucketFactory;
-import ru.yandex.yandexlavka.presentation.models.CompleteOrderRequestDto;
-import ru.yandex.yandexlavka.presentation.models.CreateOrderRequest;
+import ru.yandex.yandexlavka.presentation.requestmodels.CompleteOrderRequestDto;
+import ru.yandex.yandexlavka.presentation.requestmodels.CreateOrderRequest;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -21,11 +21,15 @@ import java.util.Optional;
 public class OrdersController {
     private final OrdersService ordersService;
     private final CompleteOrdersService completeOrdersService;
+
+    // Для каждого эндпоинта требуется отдельный rate limiter
+    // Если их станет значительно больше имеет смысл использовать ConcurrentHashMap
     private final Bucket postOrderBucket;
     private final Bucket postOrdersBucket;
     private final Bucket getOrderByIdBucket;
     private final Bucket getOrdersBucket;
     private final Bucket completeOrdersBucket;
+    private final Bucket assignOrdersBucket;
 
     @Autowired
     public OrdersController(CompleteOrdersService completeOrdersService, OrdersService ordersService, BucketFactory bucketFactory) {
@@ -36,8 +40,10 @@ public class OrdersController {
         this.getOrderByIdBucket = bucketFactory.createBucket(10, 1);
         this.getOrdersBucket = bucketFactory.createBucket(10, 1);
         this.completeOrdersBucket = bucketFactory.createBucket(10, 1);
+        this.assignOrdersBucket = bucketFactory.createBucket(10, 1);
     }
 
+    @Deprecated
     @PostMapping(path = "order", consumes = "application/json", produces = "application/json")
     public ResponseEntity<OrderDTO> postOrder(@RequestBody OrderDTO orderDTO) {
         if (postOrderBucket.tryConsume(1)) {
@@ -65,7 +71,7 @@ public class OrdersController {
         }
     }
 
-    @GetMapping("/orders/{order_id}")
+    @GetMapping(path = "/orders/{order_id}", produces = "application/json")
     public ResponseEntity<OrderDTO> getOrderById(@PathVariable Long order_id) {
         if (getOrderByIdBucket.tryConsume(1)) {
             Optional<OrderDTO> order = ordersService.getOrderById(order_id);
@@ -79,7 +85,7 @@ public class OrdersController {
         }
     }
 
-    @GetMapping("/orders")
+    @GetMapping(path = "/orders", produces = "application/json")
     public ResponseEntity<List<OrderDTO>> getOrders(@RequestParam(defaultValue = "1") int limit,
                                                     @RequestParam(defaultValue = "0") int offset) {
         if (getOrdersBucket.tryConsume(1)) {
@@ -89,8 +95,13 @@ public class OrdersController {
         }
     }
 
-    @PostMapping("/orders/assign")
-    public ResponseEntity<?> assignOrders(@RequestParam(defaultValue = "now") LocalDate localDate) {
-        return ResponseEntity.badRequest().build();
+    @PostMapping(path = "/orders/assign", produces = "application/json")
+    // В openapi сказано что параметр date deprecated, оставлен для совместимости
+    public ResponseEntity<?> assignOrders(@RequestParam(defaultValue = "now") LocalDate date) {
+        if (assignOrdersBucket.tryConsume(1)) {
+            return ResponseEntity.badRequest().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
+        }
     }
 }

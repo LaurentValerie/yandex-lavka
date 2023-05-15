@@ -42,6 +42,7 @@ public class CouriersService {
         this.dtoToCourierMapper = dtoToCourierMapper;
     }
 
+    @Deprecated
     public Optional<CourierDTO> saveOrUpdate(CourierDTO courierDTO) {
         Courier courier = dtoToCourierMapper.DtoToCourier(courierDTO);
         Courier saved = couriersRepository.save(courier);
@@ -72,30 +73,29 @@ public class CouriersService {
 
     @Transactional
     public Optional<CourierMetaInfo> getCourierMetaInfo(long id, LocalDate startDate, LocalDate endDate) {
+        // Находим курьера или возвращаем что он не найден
         Optional<Courier> courierOptional = couriersRepository.findById(id);
         if (courierOptional.isEmpty()) {
             return Optional.empty();
         }
         Courier courier = courierOptional.get();
-        CourierMetaInfo courierMetaInfo;
+
+        // Преобразуем курьера в DTO и время в Instant для дальнейшей работы
         CourierDTO courierDTO = courierToDtoMapper.toDto(courier);
         CourierType courierType = courier.getCourierType();
-
         Instant start = startDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
         Instant end = endDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
 
         List<Long> completeOrdersIds = completeOrdersRepository.findOrderIdsByCompleteTimeAndCourierId(id, start, end);
-        int completeOrders = completeOrdersIds.size();
 
+        // Если курьер не выполнил заказов рейтинг и заработок можно не считать
+        int completeOrders = completeOrdersIds.size();
         if (completeOrders != 0) {
             int earnings = getCourierEarnings(courierType, completeOrdersIds);
             int rating = getCourierRating(courierType, completeOrders, start, end);
-            courierMetaInfo = new CourierMetaInfo(id, courierType, courier.getRegions(), courierDTO.getWorkingHours(), rating, earnings);
-        } else {
-            courierMetaInfo = new CourierMetaInfo(id, courierType, courier.getRegions(), courierDTO.getWorkingHours(), 0, 0);
+            return Optional.of(new CourierMetaInfo(id, courierType, courier.getRegions(), courierDTO.getWorkingHours(), rating, earnings));
         }
-
-        return Optional.of(courierMetaInfo);
+        return Optional.of(new CourierMetaInfo(id, courierType, courier.getRegions(), courierDTO.getWorkingHours(), 0, 0));
     }
 
     private int getCourierEarnings(CourierType courierType, List<Long> completeOrdersIds) {
@@ -116,6 +116,6 @@ public class CouriersService {
             case BIKE -> 2;
             case AUTO -> 1;
         };
-        return (hours / completeOrders) * C;
+        return (int)((float)completeOrders / hours) * C;
     }
 }

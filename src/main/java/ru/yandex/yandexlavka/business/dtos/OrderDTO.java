@@ -20,7 +20,7 @@ public class OrderDTO {
     @JsonProperty("order_id")
     private Long id;
     @NotNull
-    private double weight;
+    private float weight;
     @NotNull
     private int regions;
     @NotEmpty

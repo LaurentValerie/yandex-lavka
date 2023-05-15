@@ -16,4 +16,8 @@ public interface OrdersRepository extends PagingAndSortingRepository<Order, Long
 
     @Query("SELECT o FROM Order o ORDER BY o.id OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY")
     List<Order> findOrdersWithLimitAndOffset(@Param("offset") int offset, @Param("limit") int limit);
+
+    List<Order> findByAssignedCourierIsNullOrderByDeliveryStartAsc();
+    List<Order> findByAssignedCourierIsNullAndRegionsInOrderByDeliveryStart(List<Integer> regions);
+
 }

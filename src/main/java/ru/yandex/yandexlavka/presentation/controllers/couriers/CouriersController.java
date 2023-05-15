@@ -11,7 +11,7 @@ import ru.yandex.yandexlavka.business.dtos.CourierDTO;
 import ru.yandex.yandexlavka.business.dtos.CourierMetaInfo;
 import ru.yandex.yandexlavka.business.services.CouriersService;
 import ru.yandex.yandexlavka.presentation.BucketFactory;
-import ru.yandex.yandexlavka.presentation.models.CreateCourierRequest;
+import ru.yandex.yandexlavka.presentation.requestmodels.CreateCourierRequest;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,6 +20,9 @@ import java.util.Optional;
 @RestController
 public class CouriersController {
     private final CouriersService couriersService;
+
+    // Для каждого эндпоинта требуется отдельный rate limiter
+    // Если их станет значительно больше имеет смысл использовать ConcurrentHashMap
     private final Bucket postCourierBucket;
     private final Bucket postCouriersBucket;
     private final Bucket getCourierByIdBucket;
@@ -37,6 +40,7 @@ public class CouriersController {
         this.getCourierMetaInfoBucket = bucketFactory.createBucket(10, 1);
     }
 
+    @Deprecated
     @PostMapping(path = "courier", consumes = "application/json", produces = "application/json")
     public ResponseEntity<CourierDTO> postCourier(@RequestBody CourierDTO courier) {
         if (postCourierBucket.tryConsume(1)) {
@@ -55,7 +59,7 @@ public class CouriersController {
         }
     }
 
-    @GetMapping("/couriers/{courier_id}")
+    @GetMapping(path = "/couriers/{courier_id}", produces = "application/json")
     public ResponseEntity<CourierDTO> getCourierById(@PathVariable Long courier_id) {
         if (getCourierByIdBucket.tryConsume(1)) {
             return ResponseEntity.of(couriersService.getCourierById(courier_id));
@@ -64,7 +68,7 @@ public class CouriersController {
         }
     }
 
-    @GetMapping("/couriers")
+    @GetMapping(path = "/couriers", produces = "application/json")
     public ResponseEntity<List<CourierDTO>> getCouriers(@RequestParam(defaultValue = "1") int limit,
                                                         @RequestParam(defaultValue = "0") int offset) {
         if (getCouriersBucket.tryConsume(1)) {
@@ -74,7 +78,7 @@ public class CouriersController {
         }
     }
 
-    @GetMapping(path = "/couriers/meta-info/{courier_id}")
+    @GetMapping(path = "/couriers/meta-info/{courier_id}", produces = "application/json")
     public ResponseEntity<CourierMetaInfo> getCourierMetaInfo(@PathVariable long courier_id,
                                                               @RequestParam LocalDate startDate,
                                                               @RequestParam LocalDate endDate) {

@@ -13,6 +13,7 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface DtoToCourierMapper {
+    @Mapping(target = "assignedOrderGroups", ignore = true)
     @Mapping(target = "completeOrders", ignore = true)
     @Mapping(target = "startTimeList", ignore = true)
     @Mapping(target = "endTimeList", ignore = true)

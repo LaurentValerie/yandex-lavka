@@ -32,14 +32,15 @@ public class CompleteOrdersService {
     @Transactional
     public List<OrderDTO> completeOrders(List<CompleteOrder> completeOrders) {
         completeOrdersRepository.saveAll(completeOrders);
-
+        // FIXME
+        // Выбираем сохраненные заказы по id
         List<Long> orderIds = new ArrayList<>();
         for (CompleteOrder completeOrder : completeOrders) {
             orderIds.add(completeOrder.getOrderID());
         }
-
         List<Order> orders = (List<Order>) ordersRepository.findAllById(orderIds);
 
+        // Обновляем время выполнения заказов
         for (int i = 0; i < completeOrders.size(); i++) {
             orders.get(i).setCompletedTime(completeOrders.get(i).getCompleteTime());
         }

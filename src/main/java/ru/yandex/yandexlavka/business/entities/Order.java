@@ -17,7 +17,7 @@ public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private double weight;
+    private float weight;
     private int regions;
     @ElementCollection
     private List<LocalTime> deliveryStart;
@@ -25,4 +25,5 @@ public class Order {
     private List<LocalTime> deliveryEnd;
     private int cost;
     private Instant completedTime;
+    private long assignedCourier;
 }
