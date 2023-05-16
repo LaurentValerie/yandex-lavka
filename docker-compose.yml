@@ -22,7 +22,7 @@ services:
     environment:
       POSTGRES_PASSWORD: postgres
     expose:
-      - "5433"
+      - "5432"
     restart: always
     networks:
       - enrollment
