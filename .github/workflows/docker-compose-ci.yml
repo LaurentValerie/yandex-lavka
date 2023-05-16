@@ -1,0 +1,17 @@
+name: docker-compose-CI
+on:
+   # События, которые запускают jobs
+    push:
+      branches: [ "main" ]
+    pull_request:
+      branches: [ "main" ]
+
+jobs:
+  deploy_compose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Docker Compose Action
+        uses: isbang/compose-action@v1.4.1
+        with:
+          compose-file: "../../docker-compose.yml"
+          down-flags: "--volumes"
