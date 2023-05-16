@@ -1,9 +1,17 @@
 name: docker-compose-CI
 on:
-   # События, которые запускают jobs
-    push:
+   workflow_dispatch:
+      inputs:
+         logLevel:
+            description: 'Log level'     
+            required: true
+            default: 'warning'
+         tags:
+            description: 'Test scenario tags'
+
+   push:
       branches: [ "main" ]
-    pull_request:
+   pull_request:
       branches: [ "main" ]
 
 jobs:
